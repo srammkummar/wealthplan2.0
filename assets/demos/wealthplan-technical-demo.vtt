@@ -1,0 +1,214 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.523
+This is WealthPlan, our bring-your-own Week 3 use case.
+
+00:00:03.523 --> 00:00:07.046
+In Streamlit, an investor supplies a profile, chooses a
+
+00:00:07.046 --> 00:00:10.568
+company, sets risk and time horizon, and asks a
+
+00:00:10.568 --> 00:00:14.091
+research question. The one-line job is to turn that
+
+00:00:14.091 --> 00:00:17.614
+context into a grounded educational plan that combines company
+
+00:00:17.614 --> 00:00:21.137
+research, portfolio analysis, goal scenarios, review, and a human
+
+00:00:21.137 --> 00:00:24.659
+decision. This is the actual application, not a mockup.
+
+00:00:27.359 --> 00:00:31.247
+This is a multi-agent workflow, not one model calling
+
+00:00:31.247 --> 00:00:35.135
+every tool. A supervisor agent receives the request and
+
+00:00:35.135 --> 00:00:39.024
+selects three bounded specialists: a company research agent, a
+
+00:00:39.024 --> 00:00:42.912
+portfolio analysis agent, and a goal planning agent. Each
+
+00:00:42.912 --> 00:00:46.800
+specialist owns a focused task, bounded tools, and a
+
+00:00:46.800 --> 00:00:50.688
+structured result. Shared typed WealthPlan state carries routing, outputs,
+
+00:00:50.688 --> 00:00:54.576
+review findings, approval responses, audit events, and write authorization
+
+00:00:54.576 --> 00:00:57.168
+without giving any specialist unrestricted control.
+
+00:00:59.868 --> 00:01:03.524
+Generate WealthPlan invokes the LangGraph supervisor. After normalization and
+
+00:01:03.524 --> 00:01:07.181
+Pydantic validation, it fans work out with LangGraph Send.
+
+00:01:07.181 --> 00:01:10.838
+The research, portfolio, and goal agents run independently and
+
+00:01:10.838 --> 00:01:14.495
+may complete in parallel. Each writes a structured result
+
+00:01:14.495 --> 00:01:18.151
+into shared state. LangGraph fans those results back in
+
+00:01:18.151 --> 00:01:21.808
+at report assembly, sends the combined draft to risk
+
+00:01:21.808 --> 00:01:25.465
+review, and pauses at human approval. That supervisor-specialist fan-out
+
+00:01:25.465 --> 00:01:29.121
+and fan-in is the core multi-agent pattern. The badges
+
+00:01:29.121 --> 00:01:31.966
+identify checkpoint memory and the retrieval services.
+
+00:01:34.666 --> 00:01:38.527
+The company screen shows two data paths. Historical fundamentals
+
+00:01:38.527 --> 00:01:42.389
+come from the SEC Company Facts XBRL API, independent
+
+00:01:42.389 --> 00:01:46.250
+of Pinecone. Filing questions use an indexed ten-K corpus:
+
+00:01:46.250 --> 00:01:50.112
+embeddings search the LangGraph Pinecone namespace with a ticker
+
+00:01:50.112 --> 00:01:53.974
+filter, then Cohere reranks candidates. The five Microsoft passages
+
+00:01:53.974 --> 00:01:57.835
+retain filing section, accession, date, ticker, and source URL.
+
+00:02:00.535 --> 00:02:04.213
+The portfolio specialist calculates position value, allocation, gains, sector
+
+00:02:04.213 --> 00:02:07.891
+exposure, and concentration from fixed holdings and illustrative prices.
+
+00:02:07.891 --> 00:02:11.569
+Those numbers are produced by deterministic tools, not invented
+
+00:02:11.569 --> 00:02:15.246
+in model prose. The model may explain the result,
+
+00:02:15.246 --> 00:02:18.924
+but it does not own the arithmetic. The application
+
+00:02:18.924 --> 00:02:22.602
+labels the price basis and highlights concentration so the
+
+00:02:22.602 --> 00:02:24.645
+output remains auditable and educational.
+
+00:02:27.345 --> 00:02:31.228
+The goal specialist projects the retirement target and compares
+
+00:02:31.228 --> 00:02:35.111
+four, six, and eight percent return assumptions. Inputs such
+
+00:02:35.111 --> 00:02:38.994
+as savings, contribution, inflation, withdrawal rate, and retirement age
+
+00:02:38.994 --> 00:02:42.877
+remain visible. The tool explicitly warns that these are
+
+00:02:42.877 --> 00:02:46.760
+scenarios, not forecasts, and that taxes, fees, volatility, and
+
+00:02:46.760 --> 00:02:49.780
+sequence-of-returns risk are outside this deterministic prototype.
+
+00:02:52.480 --> 00:02:56.866
+After report assembly, policy checks verify specialist completion, narrative
+
+00:02:56.866 --> 00:03:01.251
+presence, deterministic calculations, data labels, and no write before
+
+00:03:01.251 --> 00:03:05.637
+approval. LangGraph interrupt then pauses. Reads and calculations are
+
+00:03:05.637 --> 00:03:10.022
+autonomous, but a consequential approved record requires a human
+
+00:03:10.022 --> 00:03:14.408
+choice. Approve can authorize one PostgreSQL transaction. Edit loops
+
+00:03:14.408 --> 00:03:18.793
+through policy review. Reject must stop without an approved
+
+00:03:18.793 --> 00:03:22.204
+write. The prototype never executes a trade.
+
+00:03:24.904 --> 00:03:28.679
+Memory has three roles. Typed graph state exists for
+
+00:03:28.679 --> 00:03:32.454
+the run. A thread checkpointer supports pause and resume
+
+00:03:32.454 --> 00:03:36.228
+by thread ID. Approved profiles, holdings, decisions, and reports
+
+00:03:36.228 --> 00:03:40.003
+live in the repository and appear in History. Pinecone
+
+00:03:40.003 --> 00:03:43.778
+stores filing chunks only; it is evidence storage, not
+
+00:03:43.778 --> 00:03:47.552
+conversation memory. Service failures retry or use labeled cache,
+
+00:03:47.552 --> 00:03:49.649
+while missing evidence remains explicit.
+
+00:03:52.349 --> 00:03:56.402
+Request edits resumes the interrupted thread, applies reviewer instructions,
+
+00:03:56.402 --> 00:04:00.455
+reruns risk review, and returns to the same human
+
+00:04:00.455 --> 00:04:04.508
+gate. Failures have deliberate paths: missing inputs request clarification,
+
+00:04:04.508 --> 00:04:08.561
+model failures use deterministic fallbacks, specialist errors become structured
+
+00:04:08.561 --> 00:04:12.614
+warnings, and persistence failures display as failed rather than
+
+00:04:12.614 --> 00:04:13.515
+false success.
+
+00:04:16.215 --> 00:04:19.768
+The final decision is Reject. The navigator records rejected
+
+00:04:19.768 --> 00:04:23.321
+without a write, and the workspace confirms that no
+
+00:04:23.321 --> 00:04:26.873
+write was authorized. This demonstrates the Week 3 framework
+
+00:04:26.873 --> 00:04:30.426
+end to end: a supervisor coordinating specialized agents, parallel
+
+00:04:30.426 --> 00:04:33.979
+delegation, typed state, bounded tools, visible recovery, and human
+
+00:04:33.979 --> 00:04:37.532
+control of the durable action. Success means a reviewable,
+
+00:04:37.532 --> 00:04:41.085
+grounded result with correct calculations and zero unapproved writes,
+
+00:04:41.085 --> 00:04:43.453
+not simply a convincing model response.

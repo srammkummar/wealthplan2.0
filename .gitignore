@@ -1,0 +1,24 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+.data/
+
+# Local build and render output
+tmp/
+.docx-build-week3/
+docs/_qa_week3/
+
+# Generated demo media and presentation files
+assets/demos/captures/
+assets/demos/*.pptx
+assets/demos/*.mp4
+
+# Superseded documentation copies retained locally
+docs/WealthPlan_2_Project_Documentation.docx
+docs/wealthplan-2-multi-agent.png

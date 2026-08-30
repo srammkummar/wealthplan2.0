@@ -1,0 +1,20 @@
+# Normalize text in the repository and check it out consistently.
+* text=auto
+
+*.py text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.sql text eol=lf
+*.svg text eol=lf
+*.vtt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.ps1 text eol=lf
+
+# Keep generated and media assets binary.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.docx binary

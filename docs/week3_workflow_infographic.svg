@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+  <title id="title">WealthPlan Week 3 multi-agent workflow</title>
+  <desc id="desc">A Streamlit request enters a LangGraph supervisor, fans out to three independent specialists, fans into report assembly and risk review, and pauses for human approval before any durable write.</desc>
+  <defs>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#173A72"/>
+      <stop offset="1" stop-color="#27867F"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#12213B" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#55708F"/>
+    </marker>
+    <style>
+      .title{font:700 40px Arial,sans-serif;fill:#fff}.subtitle{font:20px Arial,sans-serif;fill:#E6F3F3}
+      .lane{font:700 17px Arial,sans-serif;letter-spacing:2px;fill:#66758A}.h{font:700 24px Arial,sans-serif;fill:#14213D}
+      .b{font:18px Arial,sans-serif;fill:#33445C}.s{font:15px Arial,sans-serif;fill:#5F6F82}.w{font:17px Arial,sans-serif;fill:#fff}
+      .chip{font:700 14px Arial,sans-serif;fill:#1F6B65}.arrow{fill:none;stroke:#55708F;stroke-width:4;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="1050" fill="#F5F7FB"/>
+  <rect width="1600" height="120" fill="url(#header)"/>
+  <text x="62" y="55" class="title">WealthPlan: supervised multi-agent workflow</text>
+  <text x="62" y="91" class="subtitle">Independent specialists share typed state; only a human can authorize the durable report write.</text>
+
+  <text x="62" y="165" class="lane">REQUEST AND SUPERVISION</text>
+  <rect x="62" y="195" rx="22" width="250" height="170" fill="#FFFFFF" stroke="#CDD7E5"/>
+  <circle cx="100" cy="237" r="18" fill="#3D68B1"/>
+  <text x="130" y="245" class="h">Streamlit workspace</text>
+  <text x="86" y="285" class="b">Investor profile + ticker</text>
+  <text x="86" y="315" class="b">Question + selected modules</text>
+  <text x="86" y="345" class="s">Current UI selection has priority</text>
+
+  <path d="M312 280 H360" class="arrow"/>
+  <rect x="375" y="165" rx="22" width="340" height="235" fill="#EAF1FC" stroke="#7D9BCB"/>
+  <text x="405" y="208" class="h">LangGraph supervisor</text>
+  <rect x="405" y="230" rx="14" width="280" height="38" fill="#FFFFFF"/>
+  <text x="426" y="255" class="b">1. Normalize typed request</text>
+  <rect x="405" y="280" rx="14" width="280" height="38" fill="#FFFFFF"/>
+  <text x="426" y="305" class="b">2. Plan and select routes</text>
+  <rect x="405" y="330" rx="14" width="280" height="38" fill="#FFFFFF"/>
+  <text x="426" y="355" class="b">3. Validate required inputs</text>
+  <text x="405" y="391" class="s">OpenAI structured route or deterministic fallback</text>
+
+  <path d="M715 282 H772" class="arrow"/>
+  <text x="405" y="445" class="chip">LANGGRAPH SEND · FAN-OUT TO THREE TASKS</text>
+
+  <text x="790" y="165" class="lane">INDEPENDENT SPECIALISTS</text>
+  <rect x="790" y="195" rx="20" width="365" height="105" fill="#E8F6F3" stroke="#68A89F"/>
+  <text x="818" y="231" class="h">Research agent</text>
+  <text x="818" y="263" class="b">SEC Company Facts + filing RAG</text>
+  <text x="818" y="286" class="s">OpenAI embeddings → Pinecone → Cohere</text>
+  <rect x="790" y="320" rx="20" width="365" height="105" fill="#FFF4DF" stroke="#D7A751"/>
+  <text x="818" y="356" class="h">Portfolio agent</text>
+  <text x="818" y="388" class="b">Values, allocation, gains, concentration</text>
+  <text x="818" y="411" class="s">Deterministic arithmetic; illustrative prices</text>
+  <rect x="790" y="445" rx="20" width="365" height="105" fill="#F2ECFB" stroke="#9C7AC3"/>
+  <text x="818" y="481" class="h">Goal-planning agent</text>
+  <text x="818" y="513" class="b">Retirement target and scenarios</text>
+  <text x="818" y="536" class="s">Deterministic calculator; assumptions visible</text>
+
+  <path d="M1155 372 H1220" class="arrow"/>
+  <text x="1170" y="165" class="chip">DEFERRED FAN-IN</text>
+  <rect x="1235" y="195" rx="22" width="300" height="145" fill="#FFFFFF" stroke="#CDD7E5"/>
+  <text x="1264" y="237" class="h">Report assembly</text>
+  <text x="1264" y="273" class="b">Combines structured outputs</text>
+  <text x="1264" y="302" class="s">Grounded model prose or deterministic fallback</text>
+  <path d="M1385 340 V386" class="arrow"/>
+  <rect x="1235" y="400" rx="22" width="300" height="135" fill="#FFF0F0" stroke="#DE7777"/>
+  <text x="1264" y="442" class="h">Policy / risk review</text>
+  <text x="1264" y="476" class="b">Evidence, labels, calculations</text>
+  <text x="1264" y="505" class="s">Confirms no write before approval</text>
+
+  <path d="M1385 535 V598 H1136" class="arrow"/>
+  <rect x="842" y="582" rx="24" width="280" height="145" fill="#172B4D"/>
+  <text x="877" y="627" class="w" style="font-weight:700;font-size:22px">Human approval gate</text>
+  <text x="877" y="666" class="w">LangGraph interrupt</text>
+  <text x="877" y="697" class="w">Approve · Edit · Reject</text>
+
+  <text x="62" y="782" class="lane">CONTROLLED OUTCOMES</text>
+  <path d="M982 727 V764 H275 V805" class="arrow"/>
+  <path d="M982 727 V805" class="arrow"/>
+  <path d="M982 727 V764 H1335 V805" class="arrow"/>
+  <rect x="90" y="820" rx="22" width="370" height="120" fill="#EAF6EE" stroke="#65A779"/>
+  <text x="120" y="861" class="h">Approve</text>
+  <text x="120" y="895" class="b">Authorize one PostgreSQL transaction</text>
+  <text x="120" y="922" class="s">Approved report appears in History</text>
+  <rect x="797" y="820" rx="22" width="345" height="120" fill="#FFF4DF" stroke="#D7A751"/>
+  <text x="827" y="861" class="h">Edit</text>
+  <text x="827" y="895" class="b">Apply reviewer instruction</text>
+  <text x="827" y="922" class="s">Loop through review and interrupt again</text>
+  <rect x="1150" y="820" rx="22" width="370" height="120" fill="#FFF0F0" stroke="#DE7777"/>
+  <text x="1180" y="861" class="h">Reject</text>
+  <text x="1180" y="895" class="b">Stop safely</text>
+  <text x="1180" y="922" class="s">No approved-report write</text>
+
+  <rect x="62" y="980" rx="16" width="1476" height="48" fill="#DCE6F3"/>
+  <text x="86" y="1011" class="b"><tspan font-weight="700">Shared state:</tspan> WealthPlanState + thread checkpoint · specialist outputs merge by reducer · Pinecone is evidence storage, not user memory</text>
+</svg>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="950" viewBox="0 0 1600 950" role="img" aria-labelledby="title desc">
+  <title id="title">WealthPlan state, failure recovery, and human safety boundary</title>
+  <desc id="desc">The infographic separates active graph state, resumable checkpoints, durable approved records, filing evidence, failure paths, and the approval-gated write boundary.</desc>
+  <defs>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#173A72"/><stop offset="1" stop-color="#27867F"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#12213B" flood-opacity="0.12"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#55708F"/></marker>
+    <style>
+      .title{font:700 40px Arial,sans-serif;fill:#fff}.subtitle{font:20px Arial,sans-serif;fill:#E6F3F3}.lane{font:700 17px Arial,sans-serif;letter-spacing:2px;fill:#66758A}
+      .h{font:700 24px Arial,sans-serif;fill:#14213D}.b{font:18px Arial,sans-serif;fill:#33445C}.s{font:15px Arial,sans-serif;fill:#5F6F82}.num{font:700 25px Arial,sans-serif;fill:#fff}
+      .arrow{fill:none;stroke:#55708F;stroke-width:4;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="950" fill="#F5F7FB"/>
+  <rect width="1600" height="120" fill="url(#header)"/>
+  <text x="62" y="55" class="title">State is explicit. Failures are visible. Writes require a human.</text>
+  <text x="62" y="91" class="subtitle">Four storage roles and bounded recovery prevent conversation state, evidence, and approved records from being confused.</text>
+
+  <text x="62" y="166" class="lane">WHAT THE SYSTEM REMEMBERS</text>
+  <rect x="62" y="195" rx="22" width="340" height="205" fill="#EAF1FC" stroke="#7D9BCB"/>
+  <circle cx="104" cy="238" r="22" fill="#3D68B1"/><text x="96" y="247" class="num">1</text>
+  <text x="140" y="246" class="h">Active graph state</text>
+  <text x="88" y="289" class="b">Request and routing decision</text>
+  <text x="88" y="320" class="b">Specialist results and review</text>
+  <text x="88" y="351" class="b">Approval response and audit events</text>
+  <text x="88" y="382" class="s">Lifetime: one workflow thread</text>
+
+  <rect x="442" y="195" rx="22" width="340" height="205" fill="#E8F6F3" stroke="#68A89F"/>
+  <circle cx="484" cy="238" r="22" fill="#27867F"/><text x="476" y="247" class="num">2</text>
+  <text x="520" y="246" class="h">Thread checkpoint</text>
+  <text x="468" y="289" class="b">Pause and resume by thread ID</text>
+  <text x="468" y="320" class="b">InMemorySaver or PostgresSaver</text>
+  <text x="468" y="351" class="b">Supports the human interrupt</text>
+  <text x="468" y="382" class="s">Durable only when PostgreSQL is configured</text>
+
+  <rect x="822" y="195" rx="22" width="340" height="205" fill="#EAF6EE" stroke="#65A779"/>
+  <circle cx="864" cy="238" r="22" fill="#4F9565"/><text x="856" y="247" class="num">3</text>
+  <text x="900" y="246" class="h">Approved records</text>
+  <text x="848" y="289" class="b">Profile, holdings, decision, report</text>
+  <text x="848" y="320" class="b">One PostgreSQL transaction</text>
+  <text x="848" y="351" class="b">Visible in report History</text>
+  <text x="848" y="382" class="s">Created only after Approve</text>
+
+  <rect x="1202" y="195" rx="22" width="336" height="205" fill="#F2ECFB" stroke="#9C7AC3"/>
+  <circle cx="1244" cy="238" r="22" fill="#8663AE"/><text x="1236" y="247" class="num">4</text>
+  <text x="1280" y="246" class="h">Filing evidence</text>
+  <text x="1228" y="289" class="b">SEC chunks in Pinecone</text>
+  <text x="1228" y="320" class="b">Ticker and accession metadata</text>
+  <text x="1228" y="351" class="b">Retrieved and reranked per question</text>
+  <text x="1228" y="382" class="s">Evidence corpus—not conversation memory</text>
+
+  <text x="62" y="462" class="lane">WHEN SOMETHING BREAKS</text>
+  <rect x="62" y="490" rx="24" width="900" height="315" fill="#FFFFFF" stroke="#CDD7E5"/>
+  <rect x="88" y="522" rx="14" width="245" height="58" fill="#FFF4DF"/><text x="108" y="558" class="b">Missing required input</text>
+  <path d="M333 551 H390" class="arrow"/>
+  <rect x="405" y="522" rx="14" width="505" height="58" fill="#F5F7FB"/><text x="429" y="558" class="b">Ask for clarification and stop before specialist work</text>
+
+  <rect x="88" y="601" rx="14" width="245" height="58" fill="#FFF4DF"/><text x="108" y="637" class="b">OpenAI route/assembly fails</text>
+  <path d="M333 630 H390" class="arrow"/>
+  <rect x="405" y="601" rx="14" width="505" height="58" fill="#F5F7FB"/><text x="429" y="637" class="b">Use deterministic routing or narrative fallback</text>
+
+  <rect x="88" y="680" rx="14" width="245" height="58" fill="#FFF4DF"/><text x="108" y="716" class="b">SEC or RAG transient error</text>
+  <path d="M333 709 H390" class="arrow"/>
+  <rect x="405" y="680" rx="14" width="505" height="58" fill="#F5F7FB"/><text x="429" y="707" class="b">Bounded retry → labeled stale cache</text><text x="429" y="730" class="s">Otherwise return service error / insufficient evidence</text>
+
+  <rect x="88" y="759" rx="14" width="245" height="28" fill="#FFF0F0"/><text x="108" y="780" class="s">Persistence error after approval</text>
+  <path d="M333 773 H390" class="arrow"/>
+  <rect x="405" y="759" rx="14" width="505" height="28" fill="#F5F7FB"/><text x="429" y="780" class="s">Mark persistence_failed; never claim the record was saved</text>
+
+  <text x="1010" y="462" class="lane">HUMAN WRITE BOUNDARY</text>
+  <rect x="1008" y="490" rx="24" width="530" height="315" fill="#172B4D"/>
+  <text x="1045" y="540" style="font:700 26px Arial,sans-serif;fill:#fff">Autonomous before the gate</text>
+  <text x="1045" y="578" style="font:18px Arial,sans-serif;fill:#DDE9F7">Read SEC facts and filing passages</text>
+  <text x="1045" y="610" style="font:18px Arial,sans-serif;fill:#DDE9F7">Calculate portfolio and goal scenarios</text>
+  <text x="1045" y="642" style="font:18px Arial,sans-serif;fill:#DDE9F7">Assemble, label, and review a draft</text>
+  <line x1="1045" y1="673" x2="1500" y2="673" stroke="#6E86A6" stroke-width="2"/>
+  <text x="1045" y="714" style="font:700 26px Arial,sans-serif;fill:#FFCF70">Human decision</text>
+  <text x="1045" y="750" style="font:18px Arial,sans-serif;fill:#fff">Approve → authorize approved-record write</text>
+  <text x="1045" y="779" style="font:18px Arial,sans-serif;fill:#fff">Edit → re-review · Reject → no approved write</text>
+
+  <rect x="62" y="846" rx="18" width="1476" height="70" fill="#FFF0F0" stroke="#DE7777"/>
+  <text x="90" y="878" class="h">Hard limits</text>
+  <text x="272" y="878" class="b">Never trade or move money · never guarantee returns · never invent evidence · never expose secrets</text>
+  <text x="272" y="904" class="b">Never call illustrative prices live · never create an approved business record before human approval</text>
+</svg>
