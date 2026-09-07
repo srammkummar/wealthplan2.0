@@ -1,0 +1,11 @@
+﻿category_type,failure_cluster,case_count,case_ids,share_of_failed_cases
+measured_failure,inaccurate/unsupported citation,16,"WP-001, WP-002, WP-003, WP-004, WP-005, WP-006, WP-007, WP-008, WP-009, WP-010, WP-021, WP-022, WP-023, WP-024, WP-033, WP-034",0.4706
+measured_failure,retrieval proxy miss,16,"WP-001, WP-002, WP-003, WP-004, WP-005, WP-006, WP-007, WP-008, WP-009, WP-010, WP-021, WP-022, WP-023, WP-024, WP-033, WP-034",0.4706
+measured_failure,unfaithful/unsupported answer,16,"WP-001, WP-002, WP-003, WP-004, WP-005, WP-006, WP-007, WP-008, WP-009, WP-010, WP-021, WP-022, WP-023, WP-024, WP-033, WP-034",0.4706
+measured_failure,wrong or missing tool,6,"WP-018, WP-019, WP-029, WP-030, WP-037, WP-038",0.1765
+measured_failure,missing citation/source,5,"WP-001, WP-005, WP-010, WP-023, WP-024",0.1471
+measured_failure,missing input not handled,5,"WP-018, WP-019, WP-029, WP-030, WP-037",0.1471
+measured_failure,unsafe financial advice/guarantee,2,"WP-039, WP-040",0.0588
+measured_failure,incomplete answer,1,WP-014,0.0294
+pending_metric,pending metric: numeric_correctness,12,"WP-011, WP-012, WP-013, WP-014, WP-018, WP-019, WP-025, WP-026, WP-029, WP-030, WP-035, WP-037",0.3529
+pending_metric,pending metric: trajectory,4,"WP-020, WP-031, WP-032, WP-038",0.1176

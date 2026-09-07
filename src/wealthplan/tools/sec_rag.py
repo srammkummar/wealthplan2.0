@@ -51,6 +51,7 @@ class SecFilingSearchService:
                 "answerable": False,
                 "message": "Enter a valid public-company ticker symbol.",
                 "evidence": [],
+                "passage_count": 0,
             }
         if self.backend is None and not self.settings.rag_is_configured:
             return {
@@ -62,6 +63,7 @@ class SecFilingSearchService:
                     "configuration. No unsupported answer should be inferred."
                 ),
                 "evidence": [],
+                "passage_count": 0,
             }
 
         cache_key = (ticker, " ".join(query.split()).casefold())
@@ -73,6 +75,7 @@ class SecFilingSearchService:
                     "cache_status": "fresh_cache",
                     "retrieved_at": cached.stored_at_iso,
                     "attempts": 0,
+                    "passage_count": len(result.get("evidence", [])),
                 }
             )
             return result
@@ -99,6 +102,7 @@ class SecFilingSearchService:
                             "using clearly labeled cached filing evidence from "
                             f"{stale.stored_at_iso}."
                         ),
+                        "passage_count": len(result.get("evidence", [])),
                     }
                 )
                 result["warnings"] = [
@@ -115,6 +119,7 @@ class SecFilingSearchService:
                     f"{self.retry_attempts} attempts. Try again later."
                 ),
                 "evidence": [],
+                "passage_count": 0,
                 "cache_status": "unavailable",
                 "retrieved_at": None,
                 "attempts": self.retry_attempts,
@@ -131,6 +136,7 @@ class SecFilingSearchService:
                 else "No supporting passages were retrieved."
             ),
             "evidence": evidence,
+            "passage_count": len(evidence),
             "cache_status": "live",
             "attempts": attempts,
         }

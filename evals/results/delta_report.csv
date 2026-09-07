@@ -1,0 +1,22 @@
+record_type,metric_or_cluster,baseline_value,post_improvement_value,delta,unit,baseline_count,post_improvement_count,notes
+outcome,total_cases,40,40,0,cases,40,40,Frozen dataset used for both runs
+outcome,pass_count,6,16,10,cases,6,16,
+outcome,pass_rate,0.1500,0.4000,0.2500,proportion,6,16,Increase of 25 percentage points
+outcome,runtime_failures,0,0,0,cases,0,0,
+integrity,dataset_sha256,1F8EDE0B83102692D9A00D03E606204554F554C89A8717823432F898F621252D,1F8EDE0B83102692D9A00D03E606204554F554C89A8717823432F898F621252D,,sha256,,,Dataset hash unchanged
+metric,citation_accuracy,0.0000,0.9031,0.9031,score,16,16,
+metric,faithfulness,0.3750,0.9063,0.5313,score,16,16,
+metric,hit_at_5,0.0000,0.6875,0.6875,score,16,16,Interim keyword-context retrieval proxy
+metric,mrr,0.0000,0.6063,0.6063,score,16,16,Interim keyword-context retrieval proxy
+metric,context_precision,0.0000,0.4750,0.4750,score,16,16,Interim keyword-context retrieval proxy
+metric,expected_tool_selected,0.6000,1.0000,0.4000,score,15,15,
+metric,guardrail_accuracy,0.0000,1.0000,1.0000,score,2,2,
+metric,missing_input_handling,0.0000,1.0000,1.0000,score,5,5,
+metric,safety,0.7500,1.0000,0.2500,score,8,8,
+performance,p95_latency_ms,24950.0,44178.1,19228.1,ms,40,40,Both runs remained below the 60000 ms pass bar
+remaining_failure,retrieval_proxy_miss,,5,,cases,,5,
+remaining_failure,incomplete_answer,,2,,cases,,2,
+remaining_failure,retrieval_proxy_quality_below_pass_bar,,2,,cases,,2,
+remaining_failure,unfaithful_or_unsupported_answer,,2,,cases,,2,
+pending_metric,numeric_correctness,12,12,0,cases,12,12,Approved expected values and tolerances are not connected
+pending_metric,trajectory,4,4,0,cases,4,4,Approved route and tool-event references are not connected

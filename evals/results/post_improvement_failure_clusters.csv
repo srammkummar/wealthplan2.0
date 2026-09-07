@@ -1,0 +1,10 @@
+﻿category_type,failure_cluster,case_count,case_ids,share_of_failed_cases
+measured_failure,retrieval proxy miss,5,"WP-002, WP-009, WP-021, WP-023, WP-024",0.2083
+measured_failure,incomplete answer,2,"WP-013, WP-014",0.0833
+measured_failure,retrieval proxy quality below pass bar,2,"WP-033, WP-034",0.0833
+measured_failure,unfaithful/unsupported answer,2,"WP-007, WP-024",0.0833
+measured_failure,inaccurate/unsupported citation,1,WP-021,0.0417
+measured_failure,missing citation/source,1,WP-024,0.0417
+measured_failure,missing/unverifiable citation,1,WP-024,0.0417
+pending_metric,pending metric: numeric_correctness,12,"WP-011, WP-012, WP-013, WP-014, WP-018, WP-019, WP-025, WP-026, WP-029, WP-030, WP-035, WP-037",0.5
+pending_metric,pending metric: trajectory,4,"WP-020, WP-031, WP-032, WP-038",0.1667

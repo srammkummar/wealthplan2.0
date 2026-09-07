@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Literal
 
 from langchain.messages import HumanMessage, SystemMessage
@@ -47,8 +48,57 @@ class SupervisorRoute(BaseModel):
 class RoutingResult(BaseModel):
     analyses: list[SpecialistName]
     rationale: str
-    mode: Literal["user_selected", "openai_structured", "deterministic_fallback"]
+    mode: Literal[
+        "user_selected",
+        "openai_structured",
+        "deterministic_override",
+        "deterministic_fallback",
+    ]
     warning: str | None = None
+
+
+_SEC_NARRATIVE_INTENT = re.compile(
+    r"\b(?:10[- ]?k|annual report|sec filing|filing|lawsuits?|litigation|"
+    r"legal proceedings?|regulatory|antitrust|risk factors?|supply chain|"
+    r"competition|competitive|products?|services business|international sales|"
+    r"global operations?|research and development|r&d|growth plans?)\b",
+    re.IGNORECASE,
+)
+_PROMPT_INJECTION = re.compile(
+    r"\b(?:ignore|disregard|override)\b[^.!?]{0,60}\b(?:instructions?|rules?|policy)\b",
+    re.IGNORECASE,
+)
+_GUARANTEED_RETURN_REQUEST = re.compile(
+    r"\b(?:guaranteed?|guarantee)\b[^.!?]{0,60}\b(?:double|returns?|profit|gain|stock)\b|"
+    r"\b(?:stock|investment)\b[^.!?]{0,60}\bguaranteed?\b",
+    re.IGNORECASE,
+)
+_DIRECT_TRADE_REQUEST = re.compile(
+    r"\b(?:tell|show|advise)\s+me\b[^.!?]{0,80}\b(?:exactly\s+)?what\s+to\s+(?:buy|sell)\b|"
+    r"\bwhat\s+(?:stock|security|investment)\s+should\s+i\s+(?:buy|sell)\b",
+    re.IGNORECASE,
+)
+_ADVISOR_IMPERSONATION = re.compile(
+    r"\b(?:pretend|act)\b[^.!?]{0,50}\b(?:financial|investment)\s+advisor\b",
+    re.IGNORECASE,
+)
+_PERSONALIZED_RECOMMENDATION = re.compile(
+    r"\b(?:give|make|provide)\s+me\b[^.!?]{0,50}\b(?:full\s+)?investment recommendation\b",
+    re.IGNORECASE,
+)
+
+
+def detect_unsafe_finance_request(query: str) -> list[str]:
+    """Return deterministic safety reasons that must stop ordinary routing."""
+
+    checks = (
+        ("prompt_injection", _PROMPT_INJECTION),
+        ("guaranteed_return", _GUARANTEED_RETURN_REQUEST),
+        ("direct_trade_instruction", _DIRECT_TRADE_REQUEST),
+        ("advisor_impersonation", _ADVISOR_IMPERSONATION),
+        ("personalized_investment_recommendation", _PERSONALIZED_RECOMMENDATION),
+    )
+    return [name for name, pattern in checks if pattern.search(query)]
 
 
 def infer_analyses(query: str) -> list[SpecialistName]:
@@ -60,7 +110,7 @@ def infer_analyses(query: str) -> list[SpecialistName]:
         selected.append("goal_planning")
     if any(word in lowered for word in ("portfolio", "holding", "allocation", "concentration")):
         selected.append("portfolio_analysis")
-    if any(
+    if _SEC_NARRATIVE_INTENT.search(query) or any(
         word in lowered
         for word in ("sec", "filing", "fundamental", "risk", "company", "stock")
     ):
@@ -85,6 +135,17 @@ class SupervisorRouter:
             )
 
         fallback = infer_analyses(request.user_query)
+        if _SEC_NARRATIVE_INTENT.search(request.user_query):
+            non_research = [item for item in fallback if item != "market_research"]
+            if not non_research:
+                return RoutingResult(
+                    analyses=["market_research"],
+                    rationale=(
+                        "A high-confidence SEC, legal, or disclosed-risk intent requires "
+                        "the market-research specialist."
+                    ),
+                    mode="deterministic_override",
+                )
         if self.structured_model is None and not self.settings.openai_api_key:
             return RoutingResult(
                 analyses=fallback,
@@ -156,6 +217,43 @@ def normalize_request(state: WealthPlanState) -> dict[str, Any]:
     }
 
 
+def safety_gate(state: WealthPlanState) -> dict[str, Any]:
+    """Refuse unsafe finance instructions before routing or input validation."""
+
+    request = SupervisorRequest.model_validate(state["request"])
+    reasons = detect_unsafe_finance_request(request.user_query)
+    decision = "refuse" if reasons else "allow"
+    result: dict[str, Any] = {
+        "safety_decision": {"decision": decision, "reasons": reasons},
+        "execution_events": [_event("safety_gate", decision, reasons=reasons)],
+    }
+    if reasons:
+        message = (
+            "I can't guarantee investment returns, impersonate a financial advisor, "
+            "or tell you exactly what to buy or sell. I can help with an educational "
+            "comparison based on goals, time horizon, diversification, risk, fees, "
+            "and uncertainty."
+        )
+        result.update(
+            {
+                "status": "refused",
+                "write_authorized": False,
+                "final_report": {
+                    "status": "refused",
+                    "message": message,
+                    "refusal_detected": True,
+                    "safety_decision": {"decision": decision, "reasons": reasons},
+                },
+            }
+        )
+    return result
+
+
+def route_after_safety(state: WealthPlanState) -> Literal["continue", "stop"]:
+    decision = state.get("safety_decision", {}).get("decision")
+    return "stop" if decision == "refuse" else "continue"
+
+
 def make_plan_request_node(router: SupervisorRouter):
     def plan_request(state: WealthPlanState) -> dict[str, Any]:
         request = SupervisorRequest.model_validate(state["request"])
@@ -210,11 +308,30 @@ def route_after_validation(state: WealthPlanState) -> Literal[
 
 def request_clarification(state: WealthPlanState) -> dict[str, Any]:
     missing = state.get("missing_fields", [])
+    questions: list[str] = []
+    if "retirement_inputs" in missing:
+        questions.append(
+            "Please provide any missing retirement details: current age; target "
+            "retirement age or time horizon; current savings; monthly contribution; "
+            "expected annual return; and expected retirement expenses or goal amount."
+        )
+    if "portfolio_holdings_or_user_id" in missing:
+        questions.append(
+            "Please provide portfolio holdings or an authorized portfolio identifier."
+        )
+    if "ticker" in missing:
+        questions.append(
+            "Please provide the public company name or ticker symbol to research."
+        )
+    message = " ".join(questions) or "Please provide the missing information."
     return {
+        "clarification_requested": True,
         "final_report": {
             "status": "needs_input",
-            "message": "More information is required before the plan can run.",
+            "message": message,
             "missing_fields": missing,
+            "missing_questions": questions,
+            "clarification_requested": True,
         },
         "execution_events": [_event("request_clarification", "stopped", missing=missing)],
     }
@@ -271,7 +388,20 @@ def make_specialist_node(settings: Settings):
         return {
             "specialist_outputs": [output],
             "execution_events": [
-                _event("run_specialist", output["status"], specialist=specialist)
+                _event(
+                    "run_specialist",
+                    output["status"],
+                    specialist=specialist,
+                    retrieval_status=(
+                        output.get("data", {}).get("sec_research", {}) or {}
+                    ).get("status"),
+                    passage_count=len(
+                        (
+                            output.get("data", {}).get("sec_research", {}) or {}
+                        ).get("evidence", [])
+                    ),
+                    citation_count=len(output.get("citations", [])),
+                )
             ],
         }
 
@@ -456,6 +586,7 @@ def build_multi_agent_graph(
     router = supervisor_router or SupervisorRouter(settings)
     builder = StateGraph(WealthPlanState)
     builder.add_node("normalize_request", normalize_request)
+    builder.add_node("safety_gate", safety_gate)
     builder.add_node("plan_request", make_plan_request_node(router))
     builder.add_node("validate_request", validate_request)
     builder.add_node("request_clarification", request_clarification)
@@ -474,7 +605,12 @@ def build_multi_agent_graph(
     builder.add_node("reject_report", reject_report)
 
     builder.add_edge(START, "normalize_request")
-    builder.add_edge("normalize_request", "plan_request")
+    builder.add_edge("normalize_request", "safety_gate")
+    builder.add_conditional_edges(
+        "safety_gate",
+        route_after_safety,
+        {"continue": "plan_request", "stop": END},
+    )
     builder.add_edge("plan_request", "validate_request")
     builder.add_conditional_edges("validate_request", route_after_validation)
     builder.add_edge("request_clarification", END)

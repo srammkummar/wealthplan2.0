@@ -17,6 +17,7 @@ SpecialistName = Literal[
 ]
 WorkflowStatus = Literal[
     "received",
+    "refused",
     "needs_input",
     "planned",
     "reviewing",
@@ -74,6 +75,8 @@ class WealthPlanState(TypedDict, total=False):
     routing_mode: str
     routing_rationale: str
     routing_warning: str | None
+    safety_decision: dict[str, Any]
+    clarification_requested: bool
     specialist_outputs: Annotated[list[SpecialistOutput], operator.add]
     review: dict[str, Any]
     narrative: dict[str, Any]
