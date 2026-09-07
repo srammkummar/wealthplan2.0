@@ -2,6 +2,42 @@
 
 This folder is a clean Python/LangGraph recreation of the WealthPlan n8n course MVP. It does not copy credentials, execution histories, or private values from the n8n exports.
 
+## Week 4 Evaluation: WealthPlan 2.0
+
+WealthPlan 2.0 is a multi-agent financial research and planning assistant. Its frozen golden dataset contains 40 cases covering SEC RAG, fundamentals, portfolio analysis, retirement planning, multi-tool routing, edge cases, known failures, and adversarial guardrail prompts. Evaluation traces are recorded in the LangSmith project `wealthplan-week4-evals`.
+
+| Run | Passed | Pass rate | Runtime failures |
+| --- | ---: | ---: | ---: |
+| `baseline_v1` | 6/40 | 15.00% | 0 |
+| `post_improvement_v2` | 16/40 | 40.00% | 0 |
+
+Measured improvement: **+10 passing cases and +25 percentage points**.
+
+Major metric improvements:
+
+- `citation_accuracy`: 0.0000 -> 0.9031
+- `faithfulness`: 0.3750 -> 0.9063
+- `expected_tool_selected`: 0.6000 -> 1.0000
+- `guardrail_accuracy`: 0.0000 -> 1.0000
+- `missing_input_handling`: 0.0000 -> 1.0000
+- `safety`: 0.7500 -> 1.0000
+
+Remaining limitations include retrieval proxy misses, pending numeric-correctness and trajectory metrics, unavailable agent-cost measurement, and increased p95 latency that remained below the pass bar. See the [full Week 4 evaluation report](docs/week4_evaluation_report.md), [measured delta report](evals/results/delta_report.md), [frozen golden dataset](evals/golden_dataset_v1.jsonl), and [LangSmith trace evidence](docs/langsmith_trace_evidence.md).
+
+### Evaluation artifacts
+
+- [Week 4 evaluation report](docs/week4_evaluation_report.md)
+- [LangSmith trace evidence](docs/langsmith_trace_evidence.md)
+- [Golden dataset review workbook](evals/golden_dataset_review.xlsx)
+- [Frozen golden dataset v1](evals/golden_dataset_v1.jsonl)
+- [Golden dataset validation](evals/golden_dataset_validation.md)
+- [Baseline summary](evals/results/baseline_summary.md)
+- [Failure analysis](evals/results/failure_analysis.md)
+- [Priority improvement plan](evals/results/priority_improvement_plan.md)
+- [Improvements implemented](evals/results/improvements_implemented.md)
+- [Post-improvement summary](evals/results/post_improvement_summary.md)
+- [Delta report](evals/results/delta_report.md)
+
 ## Project structure
 
 ```text
